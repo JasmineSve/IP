@@ -1,0 +1,72 @@
+package toDoLy;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Scanner;
+
+public class ToDoLy {
+    public static void main (String[] args) {
+        //task list we will use to store main data
+        ArrayList <Task> tasks = new ArrayList<>();
+        //var to work with every single object (add, remove, rename tasks)
+        Task task;
+        Scanner in = new Scanner(System.in);
+
+        //TODO read from file
+
+        //check for number of done and undone tasks
+        int taskDone = 0;
+        int taskToDo = 0;
+        for (Task t : tasks) {
+            if (t.isDone()) {
+                taskDone++;
+            } else {
+                taskToDo++;
+            }
+        }
+
+        //main work
+        while (true) {
+            System.out.println("Welcome to ToDoLy");
+            System.out.printf("You have %d tasks to do and %d tasks are done!\n", taskToDo, taskDone);
+            System.out.println("Pick an option:");
+            System.out.println("1 - Show task list");
+            System.out.println("2 - Add new task");
+            System.out.println("3 - Edit task");
+            System.out.println("4 - Save and quit");
+            int option = in.nextInt();
+            switch (option) {
+                //print tasks with sort by category or date
+                case 1:
+                    System.out.println("1 - Sort by category");
+                    System.out.println("2 - Sort by date");
+                    int sortType = in.nextInt();
+                    if (sortType == 1) {
+                        tasks.sort(Comparator.comparing(Task::getCategory));
+                    } else {
+                        tasks.sort(Comparator.comparing(Task::getDate));
+                    }
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println(i + 1 + ". " + tasks.get(i));
+                    }
+                    break;
+                //add new task
+                case 2:
+                    task = new Task();
+                    System.out.println("Input task title:");
+                    task.setTitle(in.next());
+                    System.out.println("Input task category");
+                    task.setCategory(in.next());
+                    tasks.add(task);
+                    break;
+                case 3:
+                    //TODO edit tasks
+                    break;
+                case 4:
+                    System.exit(0);
+                    //TODO save to file
+            }
+        }
+    }
+}
