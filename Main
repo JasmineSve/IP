@@ -5,17 +5,18 @@ import java.util.Scanner;
 
 class Main {
 
-    private static final String EDIT_MESSAGE = "Pick an option:\n1 - change title\n2 - change category\n3 - mark done\n4 - mark undone\n5 - remove";
+    private static final String EDIT_MESSAGE = "Pick an option: 1.Change title 2.Change category 3.Mark done 4.Mark undone 5.Remove";
     private static final String WELCOME_MESSAGE = "Welcome to ToDoLy";
-    private static final String PICK_AN_OPTION_MESSAGE = "Pick an option:\n1 - Show task list\n2 - Add new task\n3 - Edit task\n4 - Save and quit";
+    private static final String PICK_AN_OPTION_MESSAGE = "Pick an option:\n[1]Show task list\n[2]Add new task\n[3]Edit task\n[4]Save and quit";
+    private static String FILE = "temp.out";
 
     public static void main(String[] args) throws IOException {
         TaskList taskList = readFromFile();
         welcomeMessage(taskList);
         boolean workFlag = true;
         while (workFlag) {
-            Scanner in = new Scanner(System.in);
-            int option = in.nextInt();
+            System.out.println(PICK_AN_OPTION_MESSAGE);
+            int option = inputNumber();
             switch (option) {
                 case 1:
                     sort(taskList);
@@ -37,27 +38,37 @@ class Main {
     private static void editTask(TaskList taskList) {
         Scanner in = new Scanner(System.in);
         System.out.println("Choose a task to edit");
-        int taskIndex = in.nextInt();
+        int taskIndex;
+        while ((taskIndex = inputNumber()) > taskList.size()) {
+            System.out.println("Your task list contains only " + taskList.size() + " elements! Try again!");
+        }
         System.out.println(EDIT_MESSAGE);
-        int option = in.nextInt();
+        int option = inputNumber();
         switch (option) {
             case 1:
                 System.out.println("Input new title");
                 taskList.setTitle(taskIndex - 1, in.next());
+                System.out.println("Task title changed!");
                 break;
             case 2:
                 System.out.println("Input new category");
                 taskList.setCategory(taskIndex - 1, in.next());
+                System.out.println("Task category changed!");
                 break;
             case 3:
                 taskList.setDone(taskIndex - 1);
+                System.out.println("Task marked as done!");
                 break;
             case 4:
                 taskList.setUndone(taskIndex - 1);
+                System.out.println("Task marked as undone!");
                 break;
             case 5:
                 taskList.removeTask(taskIndex - 1);
+                System.out.println("Task removed from your list");
                 break;
+            default:
+                System.out.println("You have not chosen any option!");
         }
     }
 
@@ -69,15 +80,16 @@ class Main {
         System.out.println("Input task category");
         task.setCategory(in.next());
         taskList.addTask(task);
+        System.out.println("New task added to your list");
     }
 
     private static void welcomeMessage(TaskList list) {
         System.out.println(WELCOME_MESSAGE);
         System.out.printf("You have %d tasks to do and %d tasks are done!\n", list.tasksUndone(), list.tasksDone());
-        System.out.println(PICK_AN_OPTION_MESSAGE);
     }
 
     private static void printTaskList(TaskList list) {
+        System.out.println("Task list:");
         int n = list.size();
         for (int i = 0; i < n; i++) {
             System.out.println(i + 1 + ". " + list.getTask(i));
@@ -87,7 +99,7 @@ class Main {
     private static TaskList readFromFile() {
         //read task list from file
         try {
-            FileInputStream fis = new FileInputStream("temp.out");
+            FileInputStream fis = new FileInputStream(FILE);
             ObjectInputStream ois = new ObjectInputStream(fis);
             return (TaskList) ois.readObject();
         }
@@ -98,7 +110,7 @@ class Main {
     }
 
     private static void writeToFile(TaskList list) throws IOException {
-        FileOutputStream fos = new FileOutputStream("temp.out");
+        FileOutputStream fos = new FileOutputStream(FILE);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(list);
         oos.flush();
@@ -108,12 +120,32 @@ class Main {
     private static void sort(TaskList list) {
         System.out.println("1 - Sort by category");
         System.out.println("2 - Sort by date");
-        Scanner in = new Scanner(System.in);
-        int sortType = in.nextInt();
+        int sortType = inputNumber();
         if (sortType == 1) {
             list.sortByCategory();
         } else {
             list.sortByDate();
         }
+    }
+
+    /**
+     * read and validate numbers from terminal
+     *
+     * @return positive number
+     */
+    private static int inputNumber() {
+        Scanner in = new Scanner(System.in);
+        int number;
+        do {
+            while (!in.hasNextInt()) {
+                System.out.println("You have to enter a positive number! Try again:");
+                in.next();
+            }
+            number = in.nextInt();
+            if (number < 1) {
+                System.out.println("You have to enter a positive number! Try again:");
+            }
+        } while (number <= 0);
+        return number;
     }
 }
